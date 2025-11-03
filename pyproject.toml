@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "bank-api"
+version = "1.0.0"
+description = "Microservice to maintain withdrawal and deposit operations from current accounts."
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+databases = {extras = ["postgresql"], version = "^0.8.0"}
+sqlalchemy = "^1.4.52"
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+pyjwt = "^2.8.0"
+alembic = "^1.12.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+black = "^23.11.0"
+ruff = "^0.1.6"
+mypy = "^1.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
