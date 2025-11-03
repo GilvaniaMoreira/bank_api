@@ -1,7 +1,7 @@
 from databases.interfaces import Record
 
 from src.database import database
-from src.exceptions import AccountNotFoundError, BusinessError
+from src.exceptions import AccountNotFoundError, InsufficientBalanceError
 from src.models.account import accounts
 from src.models.transaction import TransactionType, transactions
 from src.schemas.transaction import TransactionIn
@@ -17,12 +17,15 @@ class TransactionService:
         query = accounts.select().where(accounts.c.id == transaction.account_id)
         account = await database.fetch_one(query)
         if not account:
-            raise AccountNotFoundError
+            raise AccountNotFoundError(account_id=transaction.account_id)
 
         if transaction.type == TransactionType.WITHDRAWAL:
             balance = float(account.balance) - transaction.amount
             if balance < 0:
-                raise BusinessError("Operation not carried out due to lack of balance")
+                raise InsufficientBalanceError(
+                    account_id=transaction.account_id,
+                    balance=float(account.balance)
+                )
         else:
             balance = float(account.balance) + transaction.amount
 

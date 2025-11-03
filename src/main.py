@@ -6,7 +6,14 @@ from fastapi.responses import JSONResponse
 
 from src.controllers import account, auth, transaction
 from src.database import database
-from src.exceptions import AccountNotFoundError, BusinessError
+from src.exceptions import (
+    AccountNotFoundError,
+    BusinessError,
+    InsufficientBalanceError,
+    InvalidAmountError,
+    InvalidTransactionError,
+    TransactionNotFoundError,
+)
 
 
 @asynccontextmanager
@@ -69,9 +76,47 @@ app.include_router(transaction.router, tags=["transaction"])
 
 @app.exception_handler(AccountNotFoundError)
 async def account_not_found_error_handler(request: Request, exc: AccountNotFoundError):
-    return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": "Account not found."})
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"detail": str(exc)}
+    )
+
+
+@app.exception_handler(TransactionNotFoundError)
+async def transaction_not_found_error_handler(request: Request, exc: TransactionNotFoundError):
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"detail": str(exc)}
+    )
+
+
+@app.exception_handler(InsufficientBalanceError)
+async def insufficient_balance_error_handler(request: Request, exc: InsufficientBalanceError):
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={"detail": str(exc)}
+    )
+
+
+@app.exception_handler(InvalidAmountError)
+async def invalid_amount_error_handler(request: Request, exc: InvalidAmountError):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"detail": str(exc)}
+    )
+
+
+@app.exception_handler(InvalidTransactionError)
+async def invalid_transaction_error_handler(request: Request, exc: InvalidTransactionError):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"detail": str(exc)}
+    )
 
 
 @app.exception_handler(BusinessError)
 async def business_error_handler(request: Request, exc: BusinessError):
-    return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": str(exc)})
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={"detail": str(exc)}
+    )
