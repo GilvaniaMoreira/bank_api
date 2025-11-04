@@ -1,3 +1,5 @@
+from typing import List
+
 from databases.interfaces import Record
 
 from src.database import database
@@ -6,7 +8,7 @@ from src.schemas.account import AccountIn
 
 
 class AccountService:
-    async def read_all(self, limit: int, skip: int = 0) -> list[Record]:
+    async def read_all(self, limit: int, skip: int = 0) -> List[Record]:
         query = accounts.select().limit(limit).offset(skip)
         return await database.fetch_all(query)
 

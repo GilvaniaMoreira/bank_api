@@ -1,6 +1,11 @@
 import time
-from typing import Annotated
+from typing import Dict, Optional
 from uuid import uuid4
+
+try:
+    from typing import Annotated
+except ImportError:
+    from typing_extensions import Annotated
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
@@ -40,7 +45,7 @@ def sign_jwt(user_id: int) -> JWTToken:
     return {"access_token": token}
 
 
-async def decode_jwt(token: str) -> JWTToken | None:
+async def decode_jwt(token: str) -> Optional[JWTToken]:
     try:
         decoded_token = jwt.decode(token, SECRET, audience="desafio-bank", algorithms=[ALGORITHM])
         _token = JWTToken.model_validate({"access_token": decoded_token})
@@ -80,11 +85,11 @@ class JWTBearer(HTTPBearer):
 
 async def get_current_user(
     token: Annotated[JWTToken, Depends(JWTBearer())],
-) -> dict[str, int]:
+) -> Dict[str, int]:
     return {"user_id": token.access_token.sub}
 
 
-def login_required(current_user: Annotated[dict[str, int], Depends(get_current_user)]):
+def login_required(current_user: Annotated[Dict[str, int], Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     return current_user
